@@ -126,7 +126,7 @@ int main()
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     // -------------------------------------------------------------------------------------------
     ourShader.use();
-    ourShader.setInt("iChannel0", 0);
+    //ourShader.setInt("iChannel0", 0);			//iChannel0 is texture and has been binded
     //ourShader.setInt("texture2", 1);
 
 
@@ -259,7 +259,9 @@ void loadtexture(const char* path)
 	// load and create a texture 
 // -------------------------
 	unsigned int texture1;
-	GLint type = GL_RGB;
+	GLenum format;
+	GLenum format_internal;
+
 	// texture 1
 	// ---------
 	glGenTextures(1, &texture1);
@@ -277,20 +279,23 @@ void loadtexture(const char* path)
 	
 	if (nrChannels == 1)
 	{
-		type = GL_RED;
+		format_internal = GL_RED;
+		format = GL_RED;
 	}
 	else if (nrChannels == 3)
 	{
-		type = GL_RGB;
+		format_internal = GL_RGB;
+		format = GL_RGB;
 	}
 	else
 	{
-		type = GL_RGBA;
+		format_internal = GL_RGBA;
+		format = GL_RGBA;
 	}
 
 	if (data)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, type, width, height, 0, type, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, format_internal, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
@@ -302,4 +307,5 @@ void loadtexture(const char* path)
 	glBindTexture(GL_TEXTURE_2D, texture1);
 
 	stbi_image_free(data);
+
 }

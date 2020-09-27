@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED( VERSION 3.0 )
 
 PROJECT( clouds )
 
-set(current_dir ${CMAKE_CURRENT_SOURCE_DIR})
+#set(current_dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 INCLUDE_DIRECTORIES(./include)
 INCLUDE_DIRECTORIES(F:/libtools/gl/glad/include)
