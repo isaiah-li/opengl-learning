@@ -17,10 +17,13 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 
-void loadtexture(const char* path);
+unsigned int loadtexture(const char* path);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+
+unsigned int resolution_width = 800;
+unsigned int resolution_height = 600;
 
 // camera
 glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -82,7 +85,7 @@ int main()
 
     // build and compile our shader zprogram
     // ------------------------------------
-    Shader ourShader("../../shader/vertex.glsl", "../../shader/frag.glsl");
+    Shader ourShader("../../shader/vertex.glsl", "../../shader/cloud2_frag.glsl");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -120,16 +123,20 @@ int main()
 	glEnableVertexAttribArray(2);
     // load and create a texture 
     // -------------------------
-	loadtexture("F:/Project/opengl/shadertoy/iChannels/RGBA_noise_medium.png");
+
+	unsigned int texture1;
+	texture1 = loadtexture("F:/Project/opengl/shadertoy/iChannels/RGBA_noise_medium.png");
     
 
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     // -------------------------------------------------------------------------------------------
     ourShader.use();
-    //ourShader.setInt("iChannel0", 0);			//iChannel0 is texture and has been binded
+    ourShader.setInt("iChannel0", 0);			//iChannel0 is texture and has been binded, the 0 is texture unit, not texture ID
     //ourShader.setInt("texture2", 1);
 
-
+	//resolution_width = 100;
+	//resolution_height = 200;
+	//glViewport(20, 20, 100, 200);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -141,6 +148,8 @@ int main()
         lastFrame = currentFrame;
 
 		ourShader.setFloat("iTime", currentFrame);
+		ourShader.setVec3("iResolution", resolution_width, resolution_height,0.0);
+
         // input
         // -----
         processInput(window);
@@ -254,18 +263,18 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
         fov = 45.0f;
 }
 
-void loadtexture(const char* path)
+unsigned int loadtexture(const char* path)
 {
 	// load and create a texture 
 // -------------------------
-	unsigned int texture1;
+	unsigned int texture;
 	GLenum format;
 	GLenum format_internal;
 
 	// texture 1
 	// ---------
-	glGenTextures(1, &texture1);
-	glBindTexture(GL_TEXTURE_2D, texture1);
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
 	// set the texture wrapping parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -304,8 +313,8 @@ void loadtexture(const char* path)
 	}
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture1);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	stbi_image_free(data);
-
+	return texture;
 }
