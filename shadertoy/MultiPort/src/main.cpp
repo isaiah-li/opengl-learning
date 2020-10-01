@@ -22,8 +22,11 @@ unsigned int loadtexture(const char* path);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-unsigned int resolution_width = 800;
-unsigned int resolution_height = 600;
+unsigned int resolution_width = 200;
+unsigned int resolution_height = 300;
+
+unsigned int resolution_width1 = 400;
+unsigned int resolution_height1 = 300;
 
 // camera
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -187,7 +190,7 @@ int main()
 		ourShader.setVec3("iResolution", resolution_width, resolution_height, 0.0);
 		ourShader1.use();
 		ourShader1.setFloat("iTime", currentFrame);
-		ourShader1.setVec3("iResolution", resolution_width, resolution_height, 0.0);
+		ourShader1.setVec3("iResolution", resolution_width1, resolution_height1, 0.0);
 		// input
 		// -----
 		processInput(window);
@@ -197,16 +200,16 @@ int main()
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-		
-		ourShader1.use();
-		glViewport(300, 300, 200, 200);
-		glBindVertexArray(VAO1);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		ourShader.use();
-		glViewport(10, 10, 400, 400);
+		glViewport(10, 10, resolution_width, resolution_height);
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		
+		ourShader1.use();
+		glViewport(250, 250, resolution_width1, resolution_height1);
+		glBindVertexArray(VAO1);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);

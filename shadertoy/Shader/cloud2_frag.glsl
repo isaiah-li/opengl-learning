@@ -13,7 +13,7 @@ uniform vec3 iResolution;
 
 #define T texture(iChannel0,(s*p.zw+ceil(s*p.x))/2e2).y/(s+=s)*4.
 void main(){
-    vec4 p,d=vec4(.8,0,vec2(pix_pos.x,pix_pos.y*iResolution.y/iResolution.x)-.3),c=vec4(.6,.7,d);
+    vec4 p,d=vec4(.8,0,vec2(pix_pos.x,pix_pos.y*iResolution.y/iResolution.x)-.2),c=vec4(.6,.7,d);
     fragColor=c-d.w;
     for(float f,s,t=2e2+sin(dot(gl_FragCoord.xy,gl_FragCoord.xy));--t>0.;p=.05*t*d)
         p.xz+=iTime,
