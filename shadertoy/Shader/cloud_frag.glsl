@@ -14,10 +14,10 @@ float noise( in vec3 x )
     vec3 f = fract(x);
 	f = f*f*(3.0-2.0*f);
     
-#if 1
+#if 0
 	vec2 uv = (p.xy+vec2(37.0,239.0)*p.z) + f.xy;
     vec2 rg = textureLod(iChannel0,vec2(((uv+0.5)/256.0).x,((uv+0.5)/256.0).y),0.0).yx;
-#else
+#else 
     ivec3 q = ivec3(p);
 	ivec2 uv = q.xy + ivec2(37,239)*q.z;
 

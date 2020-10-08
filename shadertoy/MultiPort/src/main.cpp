@@ -11,6 +11,7 @@
 #include <shader.h>
 
 #include <iostream>
+#include <time.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -25,7 +26,7 @@ const unsigned int SCR_HEIGHT = 600;
 unsigned int resolution_width = 200;
 unsigned int resolution_height = 300;
 
-unsigned int resolution_width1 = 400;
+unsigned int resolution_width1 = 300;
 unsigned int resolution_height1 = 300;
 
 // camera
@@ -128,7 +129,7 @@ int main()
 	glEnableVertexAttribArray(2);
 
 
-	Shader ourShader1("../../shader/vertex.glsl", "../../shader/cloud2_frag.glsl");
+	Shader ourShader1("../../shader/vertex.glsl", "../../shader/clock2.glsl");
 	float vertices1[] = {
 		// positions          // colors           // texture coords
 		 1.0f,  1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
@@ -180,6 +181,13 @@ int main()
 	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
+		
+		time_t tt = time(NULL);
+		struct tm *t = localtime(&tt);
+		float year = t->tm_year;
+		float month = t->tm_mon;
+		float day = t->tm_mday;
+		float sec = t->tm_hour * 3600 + t->tm_min * 60 + t->tm_sec;
 		// per-frame time logic
 		// --------------------
 		float currentFrame = glfwGetTime();
@@ -191,6 +199,7 @@ int main()
 		ourShader1.use();
 		ourShader1.setFloat("iTime", currentFrame);
 		ourShader1.setVec3("iResolution", resolution_width1, resolution_height1, 0.0);
+		ourShader1.setVec4("iDate", year, month, day, sec);
 		// input
 		// -----
 		processInput(window);

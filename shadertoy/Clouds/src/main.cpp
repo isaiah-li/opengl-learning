@@ -85,7 +85,7 @@ int main()
 
     // build and compile our shader zprogram
     // ------------------------------------
-    Shader ourShader("../../shader/vertex.glsl", "../../shader/cloud2_frag.glsl");
+    Shader ourShader("../../shader/vertex.glsl", "../../shader/cloud3_frag_readnoise.glsl");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
