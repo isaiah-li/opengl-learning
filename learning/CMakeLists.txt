@@ -5,3 +5,4 @@ PROJECT( Learning )
 
 add_subdirectory(createwindow)
 add_subdirectory(create3D)
+add_subdirectory(load3dmodel)
