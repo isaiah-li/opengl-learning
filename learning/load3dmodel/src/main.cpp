@@ -23,6 +23,19 @@ void processInput(GLFWwindow *window);
 
 unsigned int loadtexture(const char* path);
 
+//缩放
+float processScale_x(GLFWwindow *window, float & param);
+float processScale_y(GLFWwindow *window, float & param);
+float processScale_z(GLFWwindow *window, float & param);
+//旋转
+float processRotate_x(GLFWwindow *window, float & param);
+float processRotate_y(GLFWwindow *window, float & param);
+float processRotate_z(GLFWwindow *window, float & param);
+//平移
+float processTranslate_x(GLFWwindow *window, float & param);
+float processTranslate_y(GLFWwindow *window, float & param);
+float processTranslate_z(GLFWwindow *window, float & param);
+
 void renderArrays();
 
 // settings
@@ -35,7 +48,7 @@ float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
-float fov = 45.0f;
+float fov = 35.0f;
 
 // timing
 float deltaTime = 0.0f;
@@ -67,8 +80,8 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
+	//glfwSetCursorPosCallback(window, mouse_callback);
+	//glfwSetScrollCallback(window, scroll_callback);
 
 	// tell GLFW to capture our mouse
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -94,7 +107,7 @@ int main()
 
 	// load models
 	// -----------
-	Model ourModel(FileSystem::getPath("learning/load3dmodel/models/nanosuit/nanosuit.obj"));
+	Model ourModel(FileSystem::getPath("learning/load3dmodel/models/oculos/oculos.obj"));
 
 
 	Shader bg_Shader("../../load3dmodel/shader/bg_vertex.glsl", "../../load3dmodel/shader/bg_frag.glsl");
@@ -105,6 +118,18 @@ int main()
 	// draw in wireframe
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	//缩放
+	float param_scale_x = 0.0;
+	float param_scale_y = 0.0;
+	float param_scale_z = 0.0;
+	//旋转
+	float param_rotate_x = 0.0;
+	float param_rotate_y = 0.0;
+	float param_rotate_z = 0.0;
+	//平移
+	float param_translate_x = 0.0;
+	float param_translate_y = 0.0;
+	float param_translate_z = 0.0;
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
@@ -130,7 +155,7 @@ int main()
 		bg_Shader.use();
 
 		// pass projection matrix to shader (note that in this case it could change every frame)
-		glm::mat4 bg_projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 bg_projection = glm::perspective(glm::radians(fov), 1.0f, 0.1f, 100.0f);
 		bg_Shader.setMat4("projection", bg_projection);
 
 		// camera/view transformation
@@ -145,7 +170,7 @@ int main()
 		bg_Shader.setMat4("model", bg_model);
 
 		//model = glm::translate(model, cubePositions[i]);
-	
+
 		renderArrays();
 
 
@@ -153,15 +178,40 @@ int main()
 		// 3D 模型导入及显示
 		ourShader.use();
 		// view/projection transformations
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(fov), 1.0f, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
 		ourShader.setMat4("projection", projection);
 		ourShader.setMat4("view", view);
 
 		// render the loaded model
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+		//缩放
+		param_scale_x = processScale_x(window, param_scale_x);
+		param_scale_y = processScale_y(window, param_scale_y);
+		param_scale_z = processScale_z(window, param_scale_z);
+		std::cout << "my param_scale_x is " << param_scale_x << std::endl;
+		std::cout << "my param_scale_y is " << param_scale_y << std::endl;
+		std::cout << "my param_scale_z is " << param_scale_z << std::endl;
+		model = glm::scale(model, glm::vec3(param_scale_x + 0.1f, param_scale_y + 0.1f, param_scale_z + 0.1f));	// it's a bit too big for our scene, so scale it down
+		//旋转
+		param_rotate_x = processRotate_x(window, param_rotate_x);
+		param_rotate_y = processRotate_y(window, param_rotate_y);
+		param_rotate_z = processRotate_z(window, param_rotate_z);
+		std::cout << "my param_rotate_x is " << param_rotate_x << std::endl;
+		std::cout << "my param_rotate_y is " << param_rotate_y << std::endl;
+		std::cout << "my param_rotate_z is " << param_rotate_z << std::endl;
+		model = glm::rotate(model, glm::radians(param_rotate_x), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(param_rotate_y), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(param_rotate_z), glm::vec3(0.0f, 0.0f, 1.0f));
+		//平移
+		param_translate_x = processTranslate_x(window, param_translate_x);
+		param_translate_y = processTranslate_y(window, param_translate_y);
+		param_translate_z = processTranslate_z(window, param_translate_z);
+		std::cout << "my param_scale_x is " << param_translate_x << std::endl;
+		std::cout << "my param_scale_y is " << param_translate_y << std::endl;
+		std::cout << "my param_scale_z is " << param_translate_z << std::endl;
+		model = glm::translate(model, glm::vec3(param_translate_x, param_translate_y, param_translate_z)); // translate it down so it's at the center of the scene
+
 		ourShader.setMat4("model", model);
 		ourModel.Draw(ourShader);
 
@@ -290,52 +340,190 @@ unsigned int loadtexture(const char* path)
 	stbi_image_free(data);
 	return texture;
 }
+//缩放
+float processScale_x(GLFWwindow * window, float & param)
+{
+	if ((glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS))
+	{
+		if (param < 1.0)
+		{
+			param += 0.01;
+		}
+	}
+	if ((glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS))
+	{
+		if (param > 0.0)
+		{
+			param -= 0.01;
+		}
+	}
+	return param;
+}
+
+float processScale_y(GLFWwindow * window, float & param)
+{
+	if ((glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS))
+	{
+		if (param < 1.0)
+		{
+			param += 0.01;
+		}
+	}
+	if ((glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS))
+	{
+		if (param > 0.0)
+		{
+			param -= 0.01;
+		}
+	}
+	return param;
+}
+
+float processScale_z(GLFWwindow * window, float & param)
+{
+	if ((glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS))
+	{
+		if (param < 2.0)
+		{
+			param += 0.01;
+		}
+	}
+	if ((glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS))
+	{
+		if (param > 0.0)
+		{
+			param -= 0.01;
+		}
+	}
+	return param;
+}
+//旋转
+float processRotate_x(GLFWwindow * window, float & param)
+{
+	if ((glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS))
+	{
+		if (param < 180.0)
+		{
+			param += 1.0;
+		}
+	}
+	if ((glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS))
+	{
+		if (param > -180.0)
+		{
+			param -= 1.0;
+		}
+	}
+	return param;
+}
+
+float processRotate_y(GLFWwindow * window, float & param)
+{
+	if ((glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS))
+	{
+		if (param < 180.0)
+		{
+			param += 1.0;
+		}
+	}
+	if ((glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS))
+	{
+		if (param > -180.0)
+		{
+			param -= 1.0;
+		}
+	}
+	return param;
+}
+
+float processRotate_z(GLFWwindow * window, float & param)
+{
+	if ((glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS))
+	{
+		if (param < 180.0)
+		{
+			param += 1.0;
+		}
+	}
+	if ((glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS))
+	{
+		if (param > -180.0)
+		{
+			param -= 1.0;
+		}
+	}
+	return param;
+}
+//平移
+float processTranslate_x(GLFWwindow * window, float & param)
+{
+	if ((glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS))
+	{
+		if (param < 2.0)
+		{
+			param += 0.01;
+		}
+	}
+	if ((glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS))
+	{
+		if (param > -2.0)
+		{
+			param -= 0.01;
+		}
+	}
+	return param;
+}
+
+float processTranslate_y(GLFWwindow * window, float & param)
+{
+	if ((glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS))
+	{
+		if (param < 2.0)
+		{
+			param += 0.01;
+		}
+	}
+	if ((glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS))
+	{
+		if (param > -2.0)
+		{
+			param -= 0.01;
+		}
+	}
+	return param;
+}
+
+float processTranslate_z(GLFWwindow * window, float & param)
+{
+	if ((glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS))
+	{
+		if (param < 2.0)
+		{
+			param += 0.01;
+		}
+	}
+	if ((glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) && (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS))
+	{
+		if (param > -2.0)
+		{
+			param -= 0.01;
+		}
+	}
+	return param;
+}
 
 
 void renderArrays()
 {
 	float vertices[] = {
-		-1.0f, -1.0f, -1.0f,  0.0f, 0.0f,
-		 1.0f, -1.0f, -1.0f,  1.0f, 0.0f,
-		 1.0f,  1.0f, -1.0f,  1.0f, 1.0f,
-		 1.0f,  1.0f, -1.0f,  1.0f, 1.0f,
-		-1.0f,  1.0f, -1.0f,  0.0f, 1.0f,
-		-1.0f, -1.0f, -1.0f,  0.0f, 0.0f,
+		-1.0f, -1.0f, 0.0f,  0.0f, 0.0f,
+		 1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
+		 1.0f,  1.0f, 0.0f,  1.0f, 1.0f,
+		 1.0f,  1.0f, 0.0f,  1.0f, 1.0f,
+		-1.0f,  1.0f, 0.0f,  0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f,  0.0f, 0.0f,
 
-		/*-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f*/
 	};
 
 	//unsigned int VBO, VAO;
