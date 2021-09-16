@@ -16,6 +16,14 @@
 
 #include <iostream>
 
+#include <dlib/image_processing/frontal_face_detector.h>
+#include <dlib/image_processing/render_face_detections.h>
+#include <dlib/image_processing.h>
+#include <dlib/gui_widgets.h>
+#include <dlib/image_io.h>
+
+using namespace dlib;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -58,6 +66,69 @@ unsigned int bg_VBO, bg_VAO;
 
 int main()
 {
+	//using dlib
+
+	frontal_face_detector detector = get_frontal_face_detector();
+
+	string dlibmodelpath = "../../load3dmodel/models/shape_predictor_68_face_landmarks.dat";
+	shape_predictor sp;
+	deserialize(dlibmodelpath) >> sp;
+
+
+	image_window win, win_faces;
+
+	string imagePath = "../../load3dmodel/textures/people.jpg";
+	cout << "processing image " << imagePath << endl;
+	array2d<rgb_pixel> img;
+	load_image(img, imagePath);
+	// Make the image larger so we can detect small faces.
+	pyramid_up(img);
+
+	std::vector<rectangle> dets = detector(img);
+	cout << "Number of faces detected: " << dets.size() << endl;
+
+
+	std::vector<full_object_detection> shapes;
+	for (unsigned long j = 0; j < dets.size(); ++j)
+	{
+		full_object_detection shape = sp(img, dets[j]);
+		cout << "number of parts: " << shape.num_parts() << endl;
+		cout << "pixel position of first part:  " << shape.part(0) << endl;
+		cout << "pixel position of second part: " << shape.part(1) << endl;
+		// You get the idea, you can get all the face part locations if
+		// you want them.  Here we just store them in shapes so we can
+		// put them on the screen.
+		shapes.push_back(shape);
+	}
+
+	// Now let's view our face poses on the screen.
+	win.clear_overlay();
+	win.set_image(img);
+	win.add_overlay(render_face_detections(shapes));
+
+	// We can also extract copies of each face that are cropped, rotated upright,
+	// and scaled to a standard size as shown here:
+	dlib::array<array2d<rgb_pixel> > face_chips;
+	extract_image_chips(img, get_face_chip_details(shapes), face_chips);
+	win_faces.set_image(tile_images(face_chips));
+
+	cout << "Hit enter to process the next image..." << endl;
+	cin.get();
+
+
+
+
+
+
+
+
+	return 0;
+
+
+
+
+
+
 	// glfw: initialize and configure
 	// ------------------------------
 	glfwInit();
@@ -95,7 +166,7 @@ int main()
 	}
 
 	// tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
-	stbi_set_flip_vertically_on_load(true);
+	stbi_set_flip_vertically_on_load(false);
 
 	// configure global opengl state
 	// -----------------------------
@@ -107,7 +178,10 @@ int main()
 
 	// load models
 	// -----------
-	Model ourModel(FileSystem::getPath("learning/load3dmodel/models/oculos/oculos.obj"));
+	Model ourModel(FileSystem::getPath("learning/load3dmodel/models/v_mask/v_mask.obj"));
+	//Model ourModel(FileSystem::getPath("learning/load3dmodel/models/Mask_Diavolo/13551_Diavolo_Mask_v1_l3.obj"));
+	//Model ourModel(FileSystem::getPath("learning/load3dmodel/models/Mask_Gatto_Rombi/13550_Gatto_Rombi_Mask_v1_l3.obj"));
+	//Model ourModel(FileSystem::getPath("learning/load3dmodel/models/Mask_Volto/13549_Volto_Mask_L2.obj"));
 
 
 	Shader bg_Shader("../../load3dmodel/shader/bg_vertex.glsl", "../../load3dmodel/shader/bg_frag.glsl");

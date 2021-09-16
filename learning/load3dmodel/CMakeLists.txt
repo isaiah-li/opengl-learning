@@ -8,7 +8,7 @@ INCLUDE_DIRECTORIES(./include)
 #INCLUDE_DIRECTORIES(F:/libtools/gl/glm)
 #INCLUDE_DIRECTORIES(F:/libtools/gl/assimp-5.0.0/include/)
 INCLUDE_DIRECTORIES(F:/Project/opengl/LearnOpenGL/includes/)
-
+INCLUDE_DIRECTORIES(F:/libtools/dlib/)
 FILE(GLOB_RECURSE INCS "*.h" "*.hpp")
 
 #SOURCE_GROUP("Include" FILES ${INCS} )
@@ -16,11 +16,13 @@ FILE(GLOB_RECURSE INCS "*.h" "*.hpp")
 AUX_SOURCE_DIRECTORY(./src SRC)
 AUX_SOURCE_DIRECTORY(F:/libtools/gl/glad/src SRC)
 
-
+add_definitions(-D DLIB_JPEG_SUPPORT)
 #SET( OpenCV_DIR F:/libtools/opencv-2.4.13/build )
 SET( OpenCV_DIR F:/libtools/opencv-4.3.0/build )
 FIND_PACKAGE( OpenCV REQUIRED ) 
 
+#SET( dlib_DIR F:/libtools/dlib/build )
+#FIND_PACKAGE( dlib REQUIRED ) 
 
 ADD_EXECUTABLE(load3dmodel ${SRC} ${INCS})
 
@@ -30,6 +32,12 @@ TARGET_LINK_LIBRARIES( load3dmodel optimized F:/libtools/gl/glfw-3.3.2/build/src
 TARGET_LINK_LIBRARIES( load3dmodel debug F:/libtools/gl/assimp-5.0.0/build/code/Debug/assimp-vc141-mtd.lib )
 TARGET_LINK_LIBRARIES( load3dmodel optimized F:/libtools/gl/assimp-5.0.0/build/code/Release/assimp-vc141-mt.lib )
 
+TARGET_LINK_LIBRARIES( load3dmodel debug F:/libtools/dlib/build/dlib/Debug/dlib19.22.99_debug_64bit_msvc1916.lib )
+TARGET_LINK_LIBRARIES( load3dmodel optimized F:/libtools/dlib/build/dlib/Release/dlib19.22.99_release_64bit_msvc1916.lib )
+
 TARGET_LINK_LIBRARIES( load3dmodel opengl32.lib )
 
+TARGET_LINK_LIBRARIES( load3dmodel F:/libtools/jpeg-9d/libjpeg.lib )
+
 TARGET_LINK_LIBRARIES( load3dmodel ${OpenCV_LIBS} )
+#TARGET_LINK_LIBRARIES( load3dmodel ${dlib_LIBS} )
